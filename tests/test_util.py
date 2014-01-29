@@ -1,8 +1,6 @@
 from functools import partial
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from sqlalchemy.orm import scoped_session
 
 
 def create_mem_db(db):
