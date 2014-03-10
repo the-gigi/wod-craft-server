@@ -120,8 +120,6 @@ class Score(db.Model):
     unit = relationship('Unit')
 
 
-
-
 class Tag(db.Model):
     __searchable__ = ['tag']
     id = db.Column(db.Integer, primary_key=True)
@@ -132,7 +130,7 @@ class Tag(db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'tag'),)
 
 
-whooshalchemy.whoosh_index(app, Tag)
+#whooshalchemy.whoosh_index(app, Tag)
 
 
 # class ComparableMixin:
