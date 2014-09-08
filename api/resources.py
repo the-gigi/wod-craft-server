@@ -1,6 +1,12 @@
+from flask import jsonify
 from flask.ext.restful import Resource
-from api import db
-from api import models
+from serializers import ActivitySerializer, ScoreSerializer
+import models
+
+
+# Will be set by api.create_app()
+db = None
+
 
 class User(Resource):
     def get(self, id):
@@ -15,7 +21,10 @@ class User(Resource):
 
 class Activity(Resource):
     def get(self, id):
-        pass
+        q = db.session.query
+        result = q(models.Activity).get(id)
+        result = ActivitySerializer(result).data
+        return jsonify(result=result)
 
     def put(self, id):
         pass
@@ -26,7 +35,10 @@ class Activity(Resource):
 
 class Score(Resource):
     def get(self, id):
-        pass
+        q = db.session.query
+        result = q(models.Score).get(id)
+        result = ScoreSerializer(result).data
+        return jsonify(result=result)
 
     def put(self, id):
         pass
@@ -38,12 +50,19 @@ class Score(Resource):
 class Activities(Resource):
     def get(self):
         q = db.session.query
-        return q(models.Activity).all()
+        result = q(models.Activity).all()
+        result = [ActivitySerializer(r).data for r in result]
+        return jsonify(result=result)
 
 
 class Scores(Resource):
     def get(self):
-        pass
+        q = db.session.query
+        result = jsonify(q(models.Score).all())
+        result = [ScoreSerializer(r).data for r in result]
+        return jsonify(result=result)
+
+
 
 
 '''

@@ -6,7 +6,7 @@ from tests.test_util import create_mem_db
 
 class ModelsTest(TestCase):
     def setUp(self):
-        self.session = create_mem_db(models.db)
+        self.session = create_mem_db(models.metadata, models.db)
 
     def tearDown(self):
         # See documentation for create_mem_db()
@@ -28,3 +28,5 @@ class ModelsTest(TestCase):
 
         self.assertEqual(u.email, user.email)
         self.assertEqual(u.nickname, user.nickname)
+
+

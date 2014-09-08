@@ -1,0 +1,4 @@
+marshmallow=0.7.0
+flask==0.10.1
+sqlalchemy==0.8.3
+

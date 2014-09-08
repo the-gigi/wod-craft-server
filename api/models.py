@@ -1,9 +1,22 @@
 # coding: utf-8
-from datetime import datetime
-from sqlalchemy.orm import relationship
-from api import app
-import flask.ext.whooshalchemy as whooshalchemy
-from api import db
+from sqlalchemy import (Column,
+                        DateTime,
+                        ForeignKey,
+                        Index,
+                        Integer,
+                        SmallInteger,
+                        Numeric,
+                        String,
+                        Enum,
+                        Boolean,
+                        UniqueConstraint,
+                        Time,
+                        Table)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, backref
+
+Base = declarative_base()
+metadata = Base.metadata
 
 
 ROLE_USER = 0
@@ -23,48 +36,53 @@ SCORE_TYPES = dict([
 ])
 
 
-class Unit(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(4), unique=True)
-    description = db.Column(db.String(64))
+class Unit(Base):
+    __tablename__ = 'unit'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(4), unique=True)
+    description = Column(String(64))
 
 
-class ScoreType(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(10), unique=True)
-    description = db.Column(db.String(64))
+class ScoreType(Base):
+    __tablename__ = 'score_type'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(10), unique=True)
+    description = Column(String(64))
 
 
-class Activity(db.Model):
+class Activity(Base):
+    __tablename__ = 'activity'
     __searchable__ = ['name', 'description']
 
-    id = db.Column(db.Integer, primary_key=True)
-    unit_id = db.Column(db.ForeignKey('unit.id'), index=False, nullable=True)
-    score_type_id = db.Column(db.ForeignKey('score_type.id'), index=True)
+    id = Column(Integer, primary_key=True)
+    unit_id = Column(ForeignKey('unit.id'), index=False, nullable=True)
+    score_type_id = Column(ForeignKey('score_type.id'), index=True)
 
-    name = db.Column(db.String(256), unique=True)
-    description = db.Column(db.String(4096), unique=True)
-    weight = db.Column(db.Integer, nullable=True)
-    reps = db.Column(db.Integer, nullable=True)
-    time = db.Column(db.DateTime, nullable=True)
+    name = Column(String(256), unique=True)
+    description = Column(String(4096), unique=True)
+    weight = Column(Integer, nullable=True)
+    reps = Column(Integer, nullable=True)
+    time = Column(DateTime, nullable=True)
 
     unit = relationship('Unit')
     score_type = relationship('ScoreType')
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nickname = db.Column(db.String(64), unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-    role = db.Column(db.SmallInteger, default=ROLE_USER)
-    #posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
-    #about_me = db.Column(db.String(140), default='')
-    #last_seen = db.Column(db.DateTime)
-    # followed = db.relationship('User',
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    nickname = Column(String(64), unique=True)
+    email = Column(String(120), index=True, unique=True)
+    role = Column(SmallInteger, default=ROLE_USER)
+    #posts = relationship('Post', backref = 'author', lazy = 'dynamic')
+    #about_me = Column(String(140), default='')
+    #last_seen = Column(DateTime)
+    # followed = relationship('User',
     #     secondary = followers,
     #     primaryjoin = (followers.c.follower_id == id),
     #     secondaryjoin = (followers.c.followed_id == id),
-    #     backref = db.backref('followers', lazy = 'dynamic'),
+    #     backref = backref('followers', lazy = 'dynamic'),
     #     lazy = 'dynamic')
 
     # @staticmethod
@@ -95,39 +113,40 @@ class User(db.Model):
     # def get_id(self):
     #     return unicode(self.id)
 
-tags = db.Table('tags',
-                db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-                db.Column('score_id', db.Integer, db.ForeignKey('score.id'))
-)
+
+tags = Table('tags',
+             Base.metadata,
+             Column('tag_id', Integer, ForeignKey('tag.id')),
+             Column('score_id', Integer, ForeignKey('score.id')))
 
 
-class Score(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    activity_id = db.Column(db.ForeignKey('activity.id'), index=True)
-    user_id = db.Column(db.ForeignKey('user.id'), index=True)
-    unit_id = db.Column(db.ForeignKey('unit.id'), index=False, nullable=True)
+class Score(Base):
+    __tablename__ = 'score'
+    id = Column(Integer, primary_key=True)
+    activity_id = Column(ForeignKey('activity.id'), index=True)
+    user_id = Column(ForeignKey('user.id'), index=True)
 
-    when = db.Column(db.DateTime)
-    weight = db.Column(db.Integer, nullable=True)
-    reps = db.Column(db.Integer, nullable=True)
-    time = db.Column(db.Time, nullable=True)
-    rx = db.Column(db.Boolean)
-    comments = db.Column(db.String(256), nullable=True)
-    tags = db.relationship('Tag', secondary=tags, backref=db.backref('pages', lazy='dynamic'))
+    when = Column(DateTime)
+    weight = Column(Integer, nullable=True)
+    reps = Column(Integer, nullable=True)
+    time = Column(Time, nullable=True)
+    rx = Column(Boolean)
+    comments = Column(String(256), nullable=True)
+    tags = relationship('Tag', secondary=tags, backref=backref('pages', lazy='dynamic'))
 
     user = relationship('User')
     activity = relationship('Activity')
-    unit = relationship('Unit')
 
 
-class Tag(db.Model):
+class Tag(Base):
+    __tablename__ = 'tag'
     __searchable__ = ['tag']
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.ForeignKey('user.id'), index=True)
-    tag = db.Column(db.String(64))
+    id = Column(Integer, primary_key=True)
+    user_id = Column(ForeignKey('user.id'), index=True)
+    tag = Column(String(64))
     user = relationship('User')
 
-    __table_args__ = (db.UniqueConstraint('user_id', 'tag'),)
+    __table_args__ = (UniqueConstraint('user_id', 'tag'),)
 
 
 #whooshalchemy.whoosh_index(app, Tag)
@@ -150,21 +169,21 @@ class Tag(db.Model):
 #         return not other < self
 
 
-# class Score(models.Model, ComparableMixin):
-#     activity = models.ForeignKey(Activity)
-#     user = models.ForeignKey(User)
-#     when = models.DateField(default=date.today, blank=False)
-#     weight = models.IntegerField(null=True, blank=True)
-#     unit = models.CharField(max_length=4,
+# class Score(Bases.Base, ComparableMixin):
+#     activity = Bases.ForeignKey(Activity)
+#     user = Bases.ForeignKey(User)
+#     when = Bases.DateField(default=date.today, blank=False)
+#     weight = Bases.IntegerField(null=True, blank=True)
+#     unit = Bases.CharField(max_length=4,
 #                             choices=UNITS,
 #                             null=True,
 #                             blank=True,
 #                             default='LB')
-#     reps = models.IntegerField(null=True, blank=True) # used for reps and rounds
-#     time = models.TimeField(null=True, blank=True)
-#     rx = models.BooleanField(default=True)
-#     comments = models.TextField(max_length=1024, null=True, blank=True)
-#     tags = models.ManyToManyField(Tag, null=True, blank=True)
+#     reps = Bases.IntegerField(null=True, blank=True) # used for reps and rounds
+#     time = Bases.TimeField(null=True, blank=True)
+#     rx = Bases.BooleanField(default=True)
+#     comments = Bases.TextField(max_length=1024, null=True, blank=True)
+#     tags = Bases.ManyToManyField(Tag, null=True, blank=True)
 #     activity_name = property(lambda self: self.activity.name)
 #     activity_type = property(lambda self: self.activity.scoreType)
 #
