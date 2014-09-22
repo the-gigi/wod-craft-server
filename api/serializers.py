@@ -35,7 +35,7 @@ class TagSerializer(Serializer):
 
 class UserSerializer(Serializer):
     class Meta:
-        fields = 'id nickname email role'.split()
+        fields = 'id name email role'.split()
 
 
 

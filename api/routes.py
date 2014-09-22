@@ -27,3 +27,6 @@ def map_routes(api):
                      '/api/v1.0/user/<int:id>',
                      endpoint='user')
 
+    api.add_resource(resources.Users,
+                     '/api/v1.0/users',
+                     endpoint='users')

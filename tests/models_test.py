@@ -18,7 +18,7 @@ class ModelsTest(TestCase):
 
         user = User()
         user.email = 'user@tempuri.org'
-        user.nickname = 'hercules'
+        user.name = 'hercules'
 
         self.session.add(user)
         self.session.commit()
@@ -27,6 +27,6 @@ class ModelsTest(TestCase):
         u = q(User).one()
 
         self.assertEqual(u.email, user.email)
-        self.assertEqual(u.nickname, user.nickname)
+        self.assertEqual(u.name, user.name)
 
 

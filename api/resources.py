@@ -1,4 +1,5 @@
-from flask.ext.restful import Resource
+from flask import request
+from flask.ext.restful import Resource, abort
 from serializers import ActivitySerializer, ScoreSerializer, TagSerializer, \
     UserSerializer
 import models
@@ -22,12 +23,49 @@ class User(Resource):
         pass
 
 
+class Users(Resource):
+    def get(self):
+        q = db.session.query
+        result = q(models.User).get(id)
+        result = UserSerializer(result).data
+        return {'result': result}
+
+    def post(self):
+        q = db.session.query
+        name = request.values.get('name', None)
+        password = request.values.get('password', None)
+        email = request.values.get('email', None)
+        if None in (name, password):
+            abort(400)  # missing arguments
+
+        if q(models.User).filter_by(name=name).scalar() is not None:
+            abort(400)  # existing user
+        user = models.User()
+        user.name = name
+        user.email = email
+        user.role = models.ROLE_USER
+        user.hash_password(password)
+        db.session.add(user)
+        db.session.commit()
+        result = UserSerializer(user).data
+        return {'result': result}
+
+    def put(self, id):
+        pass
+
+    def delete(self, id):
+        pass
+
+
 class Activity(Resource):
     def get(self, id):
         q = db.session.query
         result = q(models.Activity).get(id)
         result = ActivitySerializer(result).data
         return {'result': result}
+
+    def post(self):
+        pass
 
     def put(self, id):
         pass

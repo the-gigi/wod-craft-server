@@ -25,13 +25,13 @@ class APITest(TestCase):
 
         # Add admin and regular users
         user = User()
-        user.nickname = 'the_gigi'
+        user.name = 'the_gigi'
         user.email = 'the_gigi@gmail.com'
         user.role = ROLE_ADMIN
         self.session.add(user)
 
         user2 = User()
-        user2.nickname = 'nobody'
+        user2.name = 'nobody'
         user2.email = 'nobody@aol.com'
         user2.role = ROLE_USER
         self.session.add(user2)
@@ -117,7 +117,29 @@ class APITest(TestCase):
         url = '/api/v1.0/user/1'
         response = self.test_app.get(url)
         result = json.loads(response.data)['result']
-        self.assertEqual('the_gigi', result['nickname'])
+        self.assertEqual('the_gigi', result['name'])
         self.assertEqual(1, result['role'])
+
+    def test_add_user(self):
+        url = '/api/v1.0/users'
+        post_data = dict(name='spiderman',
+                         email='peter.parker@dailybugle.com',
+                         password='123')
+        response = self.test_app.post(url, data=post_data)
+        result = json.loads(response.data)['result']
+        self.assertEqual('spiderman', result['name'])
+        self.assertEqual(ROLE_USER, result['role'])
+
+        # Try to get the same user
+        id = result['id']
+
+        q = self.session.query
+        user = q(User).get(id)
+
+        self.assertEqual(post_data['name'], user.name)
+        self.assertEqual(post_data['email'], user.email)
+        self.assertEqual(ROLE_USER, user.role)
+        self.assertNotEqual(post_data['password'], user.password)  # hashed
+
 
 

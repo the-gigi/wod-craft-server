@@ -14,6 +14,7 @@ from sqlalchemy import (Column,
                         Table)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
+from passlib.apps import custom_app_context as pwd_context
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -72,9 +73,16 @@ class Activity(Base):
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    nickname = Column(String(64), unique=True)
+    name = Column(String(64), unique=True)
     email = Column(String(120), index=True, unique=True)
+    password = Column(String(128))  # salted and hashed
     role = Column(SmallInteger, default=ROLE_USER)
+
+    def hash_password(self, password):
+        self.password = pwd_context.encrypt(password)
+
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.password)
 
 
 tags = Table('tags',
