@@ -1,6 +1,7 @@
 from flask import jsonify
 from flask.ext.restful import Resource
-from serializers import ActivitySerializer, ScoreSerializer
+from serializers import ActivitySerializer, ScoreSerializer, TagSerializer, \
+    UserSerializer
 import models
 
 
@@ -10,7 +11,10 @@ db = None
 
 class User(Resource):
     def get(self, id):
-        pass
+        q = db.session.query
+        result = q(models.User).get(id)
+        result = UserSerializer(result).data
+        return jsonify(result=result)
 
     def put(self, id):
         pass
@@ -33,6 +37,14 @@ class Activity(Resource):
         pass
 
 
+class Activities(Resource):
+    def get(self):
+        q = db.session.query
+        result = q(models.Activity).all()
+        result = [ActivitySerializer(r).data for r in result]
+        return jsonify(result=result)
+
+
 class Score(Resource):
     def get(self, id):
         q = db.session.query
@@ -47,21 +59,34 @@ class Score(Resource):
         pass
 
 
-class Activities(Resource):
-    def get(self):
-        q = db.session.query
-        result = q(models.Activity).all()
-        result = [ActivitySerializer(r).data for r in result]
-        return jsonify(result=result)
-
-
 class Scores(Resource):
     def get(self):
         q = db.session.query
-        result = jsonify(q(models.Score).all())
+        result = q(models.Score).all()
         result = [ScoreSerializer(r).data for r in result]
         return jsonify(result=result)
 
+
+class Tag(Resource):
+    def get(self, id):
+        q = db.session.query
+        result = q(models.Tag).get(id)
+        result = TagSerializer(result).data
+        return jsonify(result=result)
+
+    def put(self, id):
+        pass
+
+    def delete(self, id):
+        pass
+
+
+class Tags(Resource):
+    def get(self):
+        q = db.session.query
+        result = q(models.Tag).all()
+        result = [TagSerializer(r).data for r in result]
+        return jsonify(result=result)
 
 
 

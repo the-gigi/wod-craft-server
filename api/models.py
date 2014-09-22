@@ -75,43 +75,6 @@ class User(Base):
     nickname = Column(String(64), unique=True)
     email = Column(String(120), index=True, unique=True)
     role = Column(SmallInteger, default=ROLE_USER)
-    #posts = relationship('Post', backref = 'author', lazy = 'dynamic')
-    #about_me = Column(String(140), default='')
-    #last_seen = Column(DateTime)
-    # followed = relationship('User',
-    #     secondary = followers,
-    #     primaryjoin = (followers.c.follower_id == id),
-    #     secondaryjoin = (followers.c.followed_id == id),
-    #     backref = backref('followers', lazy = 'dynamic'),
-    #     lazy = 'dynamic')
-
-    # @staticmethod
-    # def make_valid_nickname(nickname):
-    #     return re.sub('[^a-zA-Z0-9_\.]', '', nickname)
-    #
-    # @staticmethod
-    # def make_unique_nickname(nickname):
-    #     if User.query.filter_by(nickname = nickname).first() == None:
-    #         return nickname
-    #     version = 2
-    #     while True:
-    #         new_nickname = nickname + str(version)
-    #         if User.query.filter_by(nickname = new_nickname).first() == None:
-    #             break
-    #         version += 1
-    #     return new_nickname
-    #
-    # def is_authenticated(self):
-    #     return True
-    #
-    # def is_active(self):
-    #     return True
-    #
-    # def is_anonymous(self):
-    #     return False
-    #
-    # def get_id(self):
-    #     return unicode(self.id)
 
 
 tags = Table('tags',

@@ -16,19 +16,26 @@ class ActivitySerializer(Serializer):
     unit = fields.Nested(UnitSerializer)
 
     class Meta:
-        fields = 'name description weight reps time unit score_type'.split()
+        fields = \
+            'id name description weight reps time unit score_type'.split()
 
 
 class ScoreSerializer(Serializer):
     score_type = fields.Nested(ActivitySerializer)
 
     class Meta:
-        fields = 'activity when weight reps time rx comments'.split()
+        fields = 'id activity_id when weight reps time rx comments'.split()
         dateformat = 'iso'
 
 
+class TagSerializer(Serializer):
+    class Meta:
+        fields = 'id user_id tag'.split()
 
 
+class UserSerializer(Serializer):
+    class Meta:
+        fields = 'id nickname email role'.split()
 
 
 
