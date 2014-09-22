@@ -1,4 +1,3 @@
-from flask import jsonify
 from flask.ext.restful import Resource
 from serializers import ActivitySerializer, ScoreSerializer, TagSerializer, \
     UserSerializer
@@ -14,7 +13,7 @@ class User(Resource):
         q = db.session.query
         result = q(models.User).get(id)
         result = UserSerializer(result).data
-        return jsonify(result=result)
+        return {'result': result}
 
     def put(self, id):
         pass
@@ -28,7 +27,7 @@ class Activity(Resource):
         q = db.session.query
         result = q(models.Activity).get(id)
         result = ActivitySerializer(result).data
-        return jsonify(result=result)
+        return {'result': result}
 
     def put(self, id):
         pass
@@ -42,7 +41,7 @@ class Activities(Resource):
         q = db.session.query
         result = q(models.Activity).all()
         result = [ActivitySerializer(r).data for r in result]
-        return jsonify(result=result)
+        return {'result': result}
 
 
 class Score(Resource):
@@ -50,7 +49,7 @@ class Score(Resource):
         q = db.session.query
         result = q(models.Score).get(id)
         result = ScoreSerializer(result).data
-        return jsonify(result=result)
+        return {'result': result}
 
     def put(self, id):
         pass
@@ -64,7 +63,7 @@ class Scores(Resource):
         q = db.session.query
         result = q(models.Score).all()
         result = [ScoreSerializer(r).data for r in result]
-        return jsonify(result=result)
+        return {'result': result}
 
 
 class Tag(Resource):
@@ -72,7 +71,7 @@ class Tag(Resource):
         q = db.session.query
         result = q(models.Tag).get(id)
         result = TagSerializer(result).data
-        return jsonify(result=result)
+        return {'result': result}
 
     def put(self, id):
         pass
@@ -86,7 +85,7 @@ class Tags(Resource):
         q = db.session.query
         result = q(models.Tag).all()
         result = [TagSerializer(r).data for r in result]
-        return jsonify(result=result)
+        return {'result': result}
 
 
 
