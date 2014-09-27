@@ -11,7 +11,7 @@ from api.models import (
     ROLE_USER,
     ROLE_ADMIN)
 
-from tests.test_util import create_mem_db
+from test_util import create_mem_db
 
 
 class APITest(TestCase):
