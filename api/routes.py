@@ -1,5 +1,6 @@
 import resources
 
+
 # Routing
 def map_routes(api):
     api.add_resource(resources.Activity,
