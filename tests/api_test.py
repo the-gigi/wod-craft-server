@@ -141,5 +141,14 @@ class APITest(TestCase):
         self.assertEqual(ROLE_USER, user.role)
         self.assertNotEqual(post_data['password'], user.password)  # hashed
 
+    def test_add_score(self):
+        pass
 
+    def test_get_score(self):
+        pass
 
+    def test_get_scores(self):
+        pass
+
+    def test_update_score(self):
+        pass
