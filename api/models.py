@@ -11,7 +11,7 @@ from sqlalchemy import (Column,
                         Boolean,
                         UniqueConstraint,
                         Time,
-                        Table)
+                        Table, Date)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from passlib.apps import custom_app_context as pwd_context
@@ -97,7 +97,7 @@ class Score(Base):
     activity_id = Column(ForeignKey('activity.id'), index=True)
     user_id = Column(ForeignKey('user.id'), index=True)
 
-    when = Column(DateTime)
+    when = Column(Date)
     weight = Column(Integer, nullable=True)
     reps = Column(Integer, nullable=True)
     time = Column(Time, nullable=True)

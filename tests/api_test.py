@@ -1,5 +1,6 @@
 import json
 from unittest import TestCase
+from datetime import datetime
 
 from api.api import create_app
 from api.models import (
@@ -142,7 +143,31 @@ class APITest(TestCase):
         self.assertNotEqual(post_data['password'], user.password)  # hashed
 
     def test_add_score(self):
-        pass
+        """
+        """
+        q = self.session.query
+        activity_id = q(Activity).first().id
+        user_id = q(User).first().id
+        when = datetime.now().date()
+        url = '/api/v1.0/scores'
+        comments = ''
+        tags = ''
+
+        post_data = dict(activity_id=activity_id,
+                         user_id=user_id,
+                         when=when,
+                         reps=5,
+                         rx=True,
+                         commets=comments,
+                         tags=tags)
+        response = self.test_app.post(url, data=post_data)
+        result = json.loads(response.data)['result']
+        q = self.session.query
+        score = q(Score).all()[-1]
+
+        self.assertEqual(user_id, score.user_id)
+        self.assertEqual(when, score.when)
+        self.assertEqual(5, score.reps)
 
     def test_get_score(self):
         pass

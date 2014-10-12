@@ -1,9 +1,9 @@
+from datetime import datetime
 from flask import request
 from flask.ext.restful import Resource, abort
 from serializers import ActivitySerializer, ScoreSerializer, TagSerializer, \
     UserSerializer
 import models
-
 
 # Will be set by api.create_app()
 db = None
@@ -83,56 +83,10 @@ class Activities(Resource):
 
 
 class Score(Resource):
-    def _process_tags(self, tags, user_id):
-        """Create non-existing tags and return list of Tag models"""
-        if not tags:
-            return []
-
-        result = []
-        q = db.session.query
-        for t in tags:
-            tag = q(models.Tag).filter_by(user_id=user_id, tag=t).scalar()
-            if not tag:
-                tag = Tag(tag=t, user_id=user_id)
-                q.session.add(tag)
-            result.append(tag)
-
-        q.session.commit()
-        return tags
-
     def get(self, id):
         q = db.session.query
         result = q(models.Score).get(id)
         result = ScoreSerializer(result).data
-        return {'result': result}
-
-    def post(self):
-        """Post a new score"""
-
-        r = request.values
-        # Verify all required arguments supplied
-        required = 'activitiy_id user_id when rx'.split()
-        for x in required:
-            if not x in r:
-                abort(400)
-
-        # Verify that exactly one of weight, reps or time is provided
-        if len(set(r.keys()) & set(['weight', 'reps', 'time'])) != 1:
-            abort(400)
-
-        s = Score()
-        s.activity_id = r['activity_id']
-        s.user_id = r['user_id']
-        s.when = r['when']
-        s.rx = r['rx']
-        s.weight = r.get('weight', None)
-        s.reps = r.get('reps', None)
-        s.time = r.get('time', None)
-        s.tags = self._process_tags(r.get('tags', None))
-        db.session.add(s)
-        db.session.commit()
-
-        result = ScoreSerializer(s).data
         return {'result': result}
 
     def put(self, id, tag_names):
@@ -153,12 +107,60 @@ class Score(Resource):
 
 
 class Scores(Resource):
+    def _process_tags(self, tags, user_id):
+        """Create non-existing tags and return list of Tag models"""
+        if not tags:
+            return []
+
+        result = []
+        q = db.session.query
+        for t in tags:
+            tag = q(models.Tag).filter_by(user_id=user_id, tag=t).scalar()
+            if not tag:
+                tag = Tag(tag=t, user_id=user_id)
+                q.session.add(tag)
+            result.append(tag)
+
+        q.session.commit()
+        return tags
+
     def get(self, tags):
         q = db.session.query
         result = q(models.Score).all()
         result = [ScoreSerializer(r).data for r in result]
         return {'result': result}
 
+    def post(self):
+        """Post a new score"""
+        try:
+
+            r = request.values
+            # Verify all required arguments supplied
+            required = 'activity_id user_id when rx'.split()
+            for x in required:
+                if not x in r.keys():
+                    abort(400)
+
+            # Verify that exactly one of weight, reps or time is provided
+            if len(set(r.keys()) & set(['weight', 'reps', 'time'])) != 1:
+                abort(400)
+
+            s = models.Score()
+            s.activity_id = r['activity_id']
+            s.user_id = r['user_id']
+            s.when = datetime.strptime(r['when'], '%Y-%m-%d').date()
+            s.rx = r['rx'].lower() in (1, 'true')
+            s.weight = r.get('weight', None)
+            s.reps = r.get('reps', None)
+            s.time = r.get('time', None)
+            s.tags = self._process_tags(r.get('tags', None), r['user_id'])
+            db.session.add(s)
+            db.session.commit()
+
+            result = ScoreSerializer(s).data
+            return {'result': result}
+        except Exception as e:
+            raise
 
 class Tag(Resource):
     def get(self, id):
