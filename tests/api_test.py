@@ -1,6 +1,6 @@
 import json
 from unittest import TestCase
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from api.api import create_app
 from api.models import (
@@ -142,38 +142,109 @@ class APITest(TestCase):
         self.assertEqual(ROLE_USER, user.role)
         self.assertNotEqual(post_data['password'], user.password)  # hashed
 
-    def test_add_score(self):
-        """
-        """
+    def _add_score(self, when, reps):
+        if isinstance(when, datetime):
+            when = when.date()
+
         q = self.session.query
         activity_id = q(Activity).first().id
         user_id = q(User).first().id
-        when = datetime.now().date()
         url = '/api/v1.0/scores'
-        comments = ''
-        tags = ''
+        comments = []
+        tags = []
 
         post_data = dict(activity_id=activity_id,
                          user_id=user_id,
                          when=when,
-                         reps=5,
+                         reps=reps,
                          rx=True,
                          commets=comments,
                          tags=tags)
         response = self.test_app.post(url, data=post_data)
-        result = json.loads(response.data)['result']
+        self.assertEqual(200, response.status_code)
+
+        return json.loads(response.data)['result']
+
+    def test_add_score(self):
+        """
+        """
+        when = datetime.now().date()
+        self._add_score(when=when, reps=5)
+
         q = self.session.query
         score = q(Score).all()[-1]
+
+        user_id = q(User).first().id
 
         self.assertEqual(user_id, score.user_id)
         self.assertEqual(when, score.when)
         self.assertEqual(5, score.reps)
 
     def test_get_score(self):
-        pass
+        when = datetime(2015, 1, 1)
+
+        score_id1 = self._add_score(when, reps=3)['id']
+        score_id2 = self._add_score(when + timedelta(days=1), reps=4)['id']
+        url = '/api/v1.0/score'
+
+        response = self.test_app.get('{}/{}'.format(url, score_id1))
+        self.assertEqual(200, response.status_code)
+        score1 = json.loads(response.data)['result']
+        expected = dict(activity_id=1,
+                        rx=True,
+                        weight=None,
+                        when='2015-01-01',
+                        reps=3,
+                        comments=None,
+                        time=None,
+                        tags=[],
+                        score_type=dict(name=None, description=None),
+                        id=7)
+        self.assertEqual(expected, score1)
+
+        response = self.test_app.get('{}/{}'.format(url, score_id2))
+        self.assertEqual(200, response.status_code)
+        score2 = json.loads(response.data)['result']
+        expected = dict(activity_id=1,
+                        rx=True,
+                        weight=None,
+                        when='2015-01-02',
+                        reps=4,
+                        comments=None,
+                        time=None,
+                        tags=[],
+                        score_type=dict(name=None, description=None),
+                        id=8)
+        self.assertEqual(expected, score2)
 
     def test_get_scores(self):
-        pass
+        url = '/api/v1.0/scores'
+        response = self.test_app.get(url)
+        self.assertEqual(200, response.status_code)
+        scores = json.loads(response.data)['result']
+        self.assertEqual(6, len(scores))
 
     def test_update_score(self):
-        pass
+        q = self.session.query
+        score = q(Score).first()
+        self.assertEqual(1, len(score.tags))
+        self.assertEqual('tag_0', score.tags[0].tag)
+
+        self.assertNotEquals(666, score.reps)
+        post_data = dict(tags='tag_1')
+        url = '/api/v1.0/score/{}'.format(score.id)
+        response = self.test_app.put(url, data=post_data)
+        self.assertEqual(200, response.status_code)
+
+        self.session.expire(score)
+        self.session.refresh(score)
+
+        score = q(Score).first()
+        self.assertEqual(1, len(score.tags))
+        self.assertEqual('tag_1', score.tags[0].tag)
+
+
+
+
+
+

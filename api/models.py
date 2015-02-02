@@ -103,7 +103,9 @@ class Score(Base):
     time = Column(Time, nullable=True)
     rx = Column(Boolean)
     comments = Column(String(256), nullable=True)
-    tags = relationship('Tag', secondary=tags, backref=backref('pages', lazy='dynamic'))
+    tags = relationship('Tag',
+                        secondary=tags,
+                        backref=backref('score', lazy='dynamic'))
 
     user = relationship('User')
     activity = relationship('Activity')
