@@ -12,8 +12,11 @@ from wodcraft.api.models import (
     ROLE_USER,
     ROLE_ADMIN)
 
-from . import test_util
-
+try:
+    from . import test_util
+except ValueError:
+    # Satisfy PyCharm. For some reason it doesn't like the relative import :-(
+    import test_util
 
 def get_result(response):
     return json.loads(response.data.decode('utf-8'))['result']
