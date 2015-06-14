@@ -1,6 +1,6 @@
 from flask.ext.sqlalchemy import SQLAlchemy
-from routes import map_routes
-import resources
+from wodcraft.api.routes import map_routes
+from wodcraft.api import resources
 
 # from config import (basedir,
 #                     ADMINS,

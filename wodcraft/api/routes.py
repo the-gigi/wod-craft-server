@@ -1,4 +1,4 @@
-import resources
+from wodcraft.api import resources
 
 
 # Routing

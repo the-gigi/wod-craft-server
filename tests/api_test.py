@@ -12,8 +12,11 @@ from wodcraft.api.models import (
     ROLE_USER,
     ROLE_ADMIN)
 
-from test_util import create_mem_db
+from . import test_util
 
+
+def get_result(response):
+    return json.loads(response.data.decode('utf-8'))['result']
 
 class APITest(TestCase):
     def setUp(self):
@@ -21,7 +24,7 @@ class APITest(TestCase):
         """
         # Create in-memory test metadata DB
         self.app = create_app()
-        self.session = create_mem_db(metadata, self.app.db)
+        self.session = test_util.create_mem_db(metadata, self.app.db)
         self.test_app = self.app.test_client()
 
         # Add admin and regular users
@@ -75,49 +78,49 @@ class APITest(TestCase):
 
     def test_get_activities_empty(self):
         # Start with a fresh memory db
-        self.session = create_mem_db(metadata, self.app.db)
+        self.session = test_util.create_mem_db(metadata, self.app.db)
 
         url = '/api/v1.0/activities'
         response = self.test_app.get(url)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual(0, len(result))
 
     def test_get_activities(self):
         url = '/api/v1.0/activities'
 
         response = self.test_app.get(url)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual(3, len(result))
 
     def test_get_activity(self):
         url = '/api/v1.0/activity/1'
         response = self.test_app.get(url)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual('activity_0', result['name'])
 
     def test_get_tags(self):
         url = '/api/v1.0/tags'
 
         response = self.test_app.get(url)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual(2, len(result))
 
     def test_get_tag(self):
         url = '/api/v1.0/tag/1'
         response = self.test_app.get(url)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual('tag_0', result['tag'])
 
     def test_get_users(self):
         url = '/api/v1.0/tags'
         response = self.test_app.get(url)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual(2, len(result))
 
     def test_get_user(self):
         url = '/api/v1.0/user/1'
         response = self.test_app.get(url)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual('the_gigi', result['name'])
         self.assertEqual(1, result['role'])
 
@@ -127,7 +130,7 @@ class APITest(TestCase):
                          email='peter.parker@dailybugle.com',
                          password='123')
         response = self.test_app.post(url, data=post_data)
-        result = json.loads(response.data)['result']
+        result = get_result(response)
         self.assertEqual('spiderman', result['name'])
         self.assertEqual(ROLE_USER, result['role'])
 
@@ -163,7 +166,7 @@ class APITest(TestCase):
         response = self.test_app.post(url, data=post_data)
         self.assertEqual(200, response.status_code)
 
-        return json.loads(response.data)['result']
+        return get_result(response)
 
     def test_add_score(self):
         """
@@ -189,7 +192,7 @@ class APITest(TestCase):
 
         response = self.test_app.get('{}/{}'.format(url, score_id1))
         self.assertEqual(200, response.status_code)
-        score1 = json.loads(response.data)['result']
+        score1 = get_result(response)
         expected = dict(activity_id=1,
                         rx=True,
                         weight=None,
@@ -204,7 +207,7 @@ class APITest(TestCase):
 
         response = self.test_app.get('{}/{}'.format(url, score_id2))
         self.assertEqual(200, response.status_code)
-        score2 = json.loads(response.data)['result']
+        score2 = get_result(response)
         expected = dict(activity_id=1,
                         rx=True,
                         weight=None,
@@ -221,7 +224,7 @@ class APITest(TestCase):
         url = '/api/v1.0/scores'
         response = self.test_app.get(url)
         self.assertEqual(200, response.status_code)
-        scores = json.loads(response.data)['result']
+        scores = get_result(response)
         self.assertEqual(6, len(scores))
 
     def test_update_score(self):

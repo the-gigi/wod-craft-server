@@ -2,9 +2,11 @@ from datetime import datetime
 from flask import request
 from flask.ext.restful import Resource, abort
 from flask.ext.restful.reqparse import RequestParser
-from serializers import ActivitySerializer, ScoreSerializer, TagSerializer, \
-    UserSerializer
-import models
+from wodcraft.api.serializers import (ActivitySerializer,
+                                      ScoreSerializer,
+                                      TagSerializer,
+                                      UserSerializer)
+from wodcraft.api import models
 
 # Will be set by api.create_app()
 db = None
