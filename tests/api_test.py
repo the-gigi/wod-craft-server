@@ -2,8 +2,8 @@ import json
 from unittest import TestCase
 from datetime import datetime, timedelta
 
-from api.api import create_app
-from api.models import (
+from wodcraft.api.api import create_app
+from wodcraft.api.models import (
     metadata,
     Activity,
     Score,

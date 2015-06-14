@@ -14,7 +14,7 @@ from flask.ext.restful import Api
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('api.config')
+    app.config.from_object('wodcraft.api.config')
     resources.db = app.db = SQLAlchemy(app)
     api = Api(app)
     map_routes(api)

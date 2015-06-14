@@ -3,3 +3,4 @@ flask==0.10.1
 sqlalchemy==0.9.9
 Flask-RESTful==0.3.2
 Flask-SQLAlchemy==2.0
+passlib==1.6.2
