@@ -18,8 +18,10 @@ except ValueError:
     # Satisfy PyCharm. For some reason it doesn't like the relative import :-(
     import test_util
 
+
 def get_result(response):
     return json.loads(response.data.decode('utf-8'))['result']
+
 
 class APITest(TestCase):
     def setUp(self):
@@ -96,7 +98,7 @@ class APITest(TestCase):
         self.assertEqual(3, len(result))
 
     def test_get_activity(self):
-        url = '/api/v1.0/activity/1'
+        url = '/api/v1.0/activities/1'
         response = self.test_app.get(url)
         result = get_result(response)
         self.assertEqual('activity_0', result['name'])
@@ -109,7 +111,7 @@ class APITest(TestCase):
         self.assertEqual(2, len(result))
 
     def test_get_tag(self):
-        url = '/api/v1.0/tag/1'
+        url = '/api/v1.0/tags/1'
         response = self.test_app.get(url)
         result = get_result(response)
         self.assertEqual('tag_0', result['tag'])
@@ -121,7 +123,7 @@ class APITest(TestCase):
         self.assertEqual(2, len(result))
 
     def test_get_user(self):
-        url = '/api/v1.0/user/1'
+        url = '/api/v1.0/users/1'
         response = self.test_app.get(url)
         result = get_result(response)
         self.assertEqual('the_gigi', result['name'])
@@ -191,7 +193,7 @@ class APITest(TestCase):
 
         score_id1 = self._add_score(when, reps=3)['id']
         score_id2 = self._add_score(when + timedelta(days=1), reps=4)['id']
-        url = '/api/v1.0/score'
+        url = '/api/v1.0/scores'
 
         response = self.test_app.get('{}/{}'.format(url, score_id1))
         self.assertEqual(200, response.status_code)
@@ -238,7 +240,7 @@ class APITest(TestCase):
 
         self.assertNotEquals(666, score.reps)
         post_data = dict(tags='tag_1')
-        url = '/api/v1.0/score/{}'.format(score.id)
+        url = '/api/v1.0/scores/{}'.format(score.id)
         response = self.test_app.put(url, data=post_data)
         self.assertEqual(200, response.status_code)
 
@@ -248,9 +250,3 @@ class APITest(TestCase):
         score = q(Score).first()
         self.assertEqual(1, len(score.tags))
         self.assertEqual('tag_1', score.tags[0].tag)
-
-
-
-
-
-
