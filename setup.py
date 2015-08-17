@@ -12,7 +12,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     namespace_packages=['wodcraft'],
     scripts=[],
-    setup_requires=['nose>=1.0', 'coverage>=3.7'],
+    setup_requires=['nose>=1.3.7', 'coverage>=3.7.1'],
     test_suite='nose.collector',
     entry_points = {
         'console_scripts': [
