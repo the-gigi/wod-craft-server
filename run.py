@@ -1,7 +1,6 @@
 #!flask/bin/python
-from api import app
-from api.routes import map_routes
+from wodcraft.api.api import create_app
 
-map_routes()
+app = create_app()
 
 app.run(port=8888, debug=True)
