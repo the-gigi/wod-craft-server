@@ -26,12 +26,11 @@ class TagSerializer(Serializer):
 
 
 class ScoreSerializer(Serializer):
-    score_type = fields.Nested(ScoreTypeSerializer)
+    activity = fields.Nested(ActivitySerializer)
     tags = fields.Nested(TagSerializer, many=True)
 
     class Meta:
-        fields = ('id activity_id when weight reps time rx comments '
-                  'tags score_type').split()
+        fields = 'id activity when weight reps time rx comments tags'.split()
         dateformat = 'iso'
 
 
