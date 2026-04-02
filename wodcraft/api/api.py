@@ -6,14 +6,19 @@ from flask import Flask
 from flask_restful import Api
 
 
-def create_app(debug=True):
+def create_app(debug=True, testing=False):
     app = Flask(__name__)
     app.config.from_object('wodcraft.api.config')
+
+    if testing:
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+
     resources.db = app.db = SQLAlchemy(app)
     api = Api(app)
     map_routes(api)
 
-    if debug:
+    if debug and not testing:
         CORS(app)
 
     return app

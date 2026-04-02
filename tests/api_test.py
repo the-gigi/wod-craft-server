@@ -25,7 +25,7 @@ def get_result(response):
 class APITest(TestCase):
     def setUp(self):
         """Set up in-memory test database and Flask test client."""
-        self.app = create_app()
+        self.app = create_app(testing=True)
         self.ctx = self.app.app_context()
         self.ctx.push()
 
@@ -141,8 +141,6 @@ class APITest(TestCase):
 
         # Try to get the same user
         user_id = result['id']
-
-        q = self.session.query
         user = self.session.get(User, user_id)
 
         self.assertEqual(post_data['name'], user.name)
@@ -179,7 +177,6 @@ class APITest(TestCase):
 
         q = self.session.query
         score = q(Score).all()[-1]
-
         user_id = q(User).first().id
 
         self.assertEqual(user_id, score.user_id)
