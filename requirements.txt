@@ -3,7 +3,7 @@ Flask-Cors==6.0.2
 Flask-RESTful==0.3.10
 Flask-Script==2.0.6
 Flask-SQLAlchemy==3.1.1
-marshmallow==3.26.2
+marshmallow==4.2.3
 passlib==1.7.4
 requests==2.33.0
 SQLAlchemy==2.0.48
