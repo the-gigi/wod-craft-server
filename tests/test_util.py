@@ -1,25 +1,25 @@
 from functools import partial
-from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
 
 
 def create_mem_db(metadata, db):
-    """Set up in-memory SQLite database for testing with Flask-SQLAlchemy 3.x.
+    """Set up (or reset) in-memory SQLite database for testing.
 
-    This approach creates an in-memory SQLite engine and binds the Flask-SQLAlchemy
-    session to it directly, bypassing the configured database URI.
+    The app must have been created with testing=True (SQLALCHEMY_DATABASE_URI = 'sqlite://').
+    This function drops all tables and recreates them, giving a clean slate.
 
-    The app must be configured with SQLALCHEMY_DATABASE_URI = 'sqlite://' for this
-    to work correctly.
+    Returns the current db.session.
     """
-    # Create tables in the existing in-memory engine  
     with db.engine.begin() as conn:
+        metadata.drop_all(conn)
         metadata.create_all(conn)
 
+    db.session.remove()
+
     def _restore_engine(self):
-        # Drop all tables to clean up
+        """Called in tearDown - drops all test tables."""
         with db.engine.begin() as conn:
             metadata.drop_all(conn)
+        db.session.remove()
 
     db.restore_engine = partial(_restore_engine, db)
 

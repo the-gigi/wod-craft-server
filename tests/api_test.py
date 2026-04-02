@@ -193,31 +193,35 @@ class APITest(TestCase):
         response = self.test_app.get('{}/{}'.format(url, score_id1))
         self.assertEqual(200, response.status_code)
         score1 = get_result(response)
-        expected = dict(activity_id=1,
+        expected = dict(id=7,
+                        activity=dict(id=1, name='activity_0', description=None,
+                                      weight=None, reps=None, time=None,
+                                      unit={'name': None, 'description': None},
+                                      score_type={'name': None, 'description': None}),
                         rx=True,
                         weight=None,
                         when='2015-01-01',
                         reps=3,
                         comments=None,
                         time=None,
-                        tags=[],
-                        score_type=dict(name=None, description=None),
-                        id=7)
+                        tags=[])
         self.assertEqual(expected, score1)
 
         response = self.test_app.get('{}/{}'.format(url, score_id2))
         self.assertEqual(200, response.status_code)
         score2 = get_result(response)
-        expected = dict(activity_id=1,
+        expected = dict(id=8,
+                        activity=dict(id=1, name='activity_0', description=None,
+                                      weight=None, reps=None, time=None,
+                                      unit={'name': None, 'description': None},
+                                      score_type={'name': None, 'description': None}),
                         rx=True,
                         weight=None,
                         when='2015-01-02',
                         reps=4,
                         comments=None,
                         time=None,
-                        tags=[],
-                        score_type=dict(name=None, description=None),
-                        id=8)
+                        tags=[])
         self.assertEqual(expected, score2)
 
     def test_get_scores(self):

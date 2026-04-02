@@ -117,7 +117,7 @@ class Score(Resource):
     def put(self, id):
         """Update tags for a score"""
         parser = RequestParser()
-        parser.add_argument('tags', type=str, required=True)
+        parser.add_argument('tags', type=str, required=True, location='values')
         args = parser.parse_args()
 
         score = db.session.get(models.Score, id)
