@@ -12,8 +12,7 @@ from sqlalchemy import (Column,
                         UniqueConstraint,
                         Time,
                         Table, Date)
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import declarative_base, relationship, backref
 from passlib.apps import custom_app_context as pwd_context
 
 Base = declarative_base()
@@ -54,7 +53,6 @@ class ScoreType(Base):
 
 class Activity(Base):
     __tablename__ = 'activity'
-    __searchable__ = ['name', 'description']
 
     id = Column(Integer, primary_key=True)
     unit_id = Column(ForeignKey('unit.id'), index=False, nullable=True)
@@ -113,85 +111,9 @@ class Score(Base):
 
 class Tag(Base):
     __tablename__ = 'tag'
-    __searchable__ = ['tag']
     id = Column(Integer, primary_key=True)
     user_id = Column(ForeignKey('user.id'), index=True)
     tag = Column(String(64))
     user = relationship('User')
 
     __table_args__ = (UniqueConstraint('user_id', 'tag'),)
-
-
-#whooshalchemy.whoosh_index(app, Tag)
-
-
-# class ComparableMixin:
-#     def __eq__(self, other):
-#         return not self < other and not other < self
-#
-#     def __ne__(self, other):
-#         return self < other or other < self
-#
-#     def __gt__(self, other):
-#         return other < self
-#
-#     def __ge__(self, other):
-#         return not self < other
-#
-#     def __le__(self, other):
-#         return not other < self
-
-
-# class Score(Bases.Base, ComparableMixin):
-#     activity = Bases.ForeignKey(Activity)
-#     user = Bases.ForeignKey(User)
-#     when = Bases.DateField(default=date.today, blank=False)
-#     weight = Bases.IntegerField(null=True, blank=True)
-#     unit = Bases.CharField(max_length=4,
-#                             choices=UNITS,
-#                             null=True,
-#                             blank=True,
-#                             default='LB')
-#     reps = Bases.IntegerField(null=True, blank=True) # used for reps and rounds
-#     time = Bases.TimeField(null=True, blank=True)
-#     rx = Bases.BooleanField(default=True)
-#     comments = Bases.TextField(max_length=1024, null=True, blank=True)
-#     tags = Bases.ManyToManyField(Tag, null=True, blank=True)
-#     activity_name = property(lambda self: self.activity.name)
-#     activity_type = property(lambda self: self.activity.scoreType)
-#
-#     @property
-#     def result(self):
-#         t = self.activity_type
-#         if t == 'Weight':
-#             return str(self.weight) + ' ' + self.unit
-#         elif t == 'Time':
-#             return str(self.time)
-#         elif t in ('Reps', 'Rounds'):
-#             return str(self.reps)
-#         else:
-#             raise Exception('Unknown score type: ' + t)
-#
-#     def __lt__(self, other):
-#         t = self.activity.scoreType
-#         if t == 'Weight':
-#             # Don't deal with unit conversions
-#             assert self.unit == other.unit
-#             return self.weight < other.weight
-#         elif t == 'Time':
-#             # A score is a lesser score if it took MORE time to complete
-#             return self.time > other.time
-#         elif t in ('Reps', 'Rounds'):
-#             return self.reps < other.reps
-#         else:
-#             raise Exception('Unknown score type: ' + t)
-#
-#     def __unicode__(self):
-#         a = self.activity
-#         name = a.name
-#         if self.activity_type == "Reps":
-#             name = 'Max ' + name
-#
-#         return name + ' - ' + self.result
-#
-#     date_hierarchy = ['when']
