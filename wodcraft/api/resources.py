@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import request
-from flask.ext.restful import Resource, abort
-from flask.ext.restful.reqparse import RequestParser
+from flask_restful import Resource, abort
+from flask_restful.reqparse import RequestParser
 from wodcraft.api.serializers import (ActivitySerializer,
                                       ScoreSerializer,
                                       TagSerializer,
@@ -40,8 +40,8 @@ def _process_tags(tags, user_id):
 class User(Resource):
     def get(self, id):
         q = db.session.query
-        result = q(models.User).get(id)
-        result = UserSerializer(result).data
+        result = db.session.get(models.User, id)
+        result = UserSerializer().dump(result)
         return {'result': result}
 
     def put(self, id):
@@ -53,9 +53,8 @@ class User(Resource):
 
 class Users(Resource):
     def get(self):
-        q = db.session.query
-        result = q(models.User).get(id)
-        result = UserSerializer(result).data
+        result = db.session.get(models.User, id)
+        result = UserSerializer().dump(result)
         return {'result': result}
 
     def post(self):
@@ -75,7 +74,7 @@ class Users(Resource):
         user.hash_password(password)
         db.session.add(user)
         db.session.commit()
-        result = UserSerializer(user).data
+        result = UserSerializer().dump(user)
         return {'result': result}
 
     def put(self, id):
@@ -87,9 +86,8 @@ class Users(Resource):
 
 class Activity(Resource):
     def get(self, id):
-        q = db.session.query
-        result = q(models.Activity).get(id)
-        result = ActivitySerializer(result).data
+        result = db.session.get(models.Activity, id)
+        result = ActivitySerializer().dump(result)
         return {'result': result}
 
     def post(self):
@@ -106,15 +104,14 @@ class Activities(Resource):
     def get(self):
         q = db.session.query
         result = q(models.Activity).all()
-        result = [ActivitySerializer(r).data for r in result]
+        result = [ActivitySerializer().dump(r) for r in result]
         return {'result': result}
 
 
 class Score(Resource):
     def get(self, id):
-        q = db.session.query
-        result = q(models.Score).get(id)
-        result = ScoreSerializer(result).data
+        result = db.session.get(models.Score, id)
+        result = ScoreSerializer().dump(result)
         return {'result': result}
 
     def put(self, id):
@@ -123,15 +120,14 @@ class Score(Resource):
         parser.add_argument('tags', type=str, required=True)
         args = parser.parse_args()
 
-        q = db.session.query
-        score = q(models.Score).get(id)
+        score = db.session.get(models.Score, id)
 
         tag_names = [t.strip() for t in args.tags.split(',')]
 
         score.tags = _process_tags(tag_names, score.user_id)
         db.session.commit()
-        score = q(models.Score).get(id)
-        result = ScoreSerializer(score).data
+        score = db.session.get(models.Score, id)
+        result = ScoreSerializer().dump(score)
         return {'result': result}
 
     def delete(self, id):
@@ -142,7 +138,7 @@ class Scores(Resource):
     def get(self):
         q = db.session.query
         result = q(models.Score).all()
-        result = [ScoreSerializer(r).data for r in result]
+        result = [ScoreSerializer().dump(r) for r in result]
         return {'result': result}
 
     def post(self):
@@ -171,7 +167,7 @@ class Scores(Resource):
             db.session.add(s)
             db.session.commit()
 
-            result = ScoreSerializer(s).data
+            result = ScoreSerializer().dump(s)
             return {'result': result}
         except Exception as e:
             raise
@@ -179,9 +175,8 @@ class Scores(Resource):
 
 class Tag(Resource):
     def get(self, id):
-        q = db.session.query
-        result = q(models.Tag).get(id)
-        result = TagSerializer(result).data
+        result = db.session.get(models.Tag, id)
+        result = TagSerializer().dump(result)
         return {'result': result}
 
     def put(self, id):
@@ -195,5 +190,5 @@ class Tags(Resource):
     def get(self):
         q = db.session.query
         result = q(models.Tag).all()
-        result = [TagSerializer(r).data for r in result]
+        result = [TagSerializer().dump(r) for r in result]
         return {'result': result}

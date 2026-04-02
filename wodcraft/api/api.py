@@ -1,16 +1,9 @@
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from wodcraft.api.routes import map_routes
 from wodcraft.api import resources
-
-# from config import (basedir,
-#                     ADMINS,
-#                     MAIL_SERVER,
-#                     MAIL_PORT,
-#                     MAIL_USERNAME,
-#                     MAIL_PASSWORD)
 from flask import Flask
-from flask.ext.restful import Api
+from flask_restful import Api
 
 
 def create_app(debug=True):
@@ -24,8 +17,3 @@ def create_app(debug=True):
         CORS(app)
 
     return app
-
-
-
-
-
