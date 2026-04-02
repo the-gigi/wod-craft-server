@@ -4,11 +4,13 @@ from sqlalchemy.pool import StaticPool
 
 
 def create_mem_db(metadata, db):
-    """Replace the Session class with an in-memory test Session class
+    """Replace the Session with an in-memory SQLite session for testing.
 
-    In Flask-SQLAlchemy 3.x, we override the engine by configuring the app
-    with an in-memory SQLite URI. This function sets up the tables and
-    returns a scoped session bound to the in-memory engine.
+    Flask-SQLAlchemy 3.x: We override the session binding to use an in-memory
+    engine. Requires an active Flask app context when called.
+
+    Returns a scoped session bound to the in-memory engine.
+    Call db.restore_engine() in tearDown() to clean up.
     """
     engine = create_engine('sqlite:///:memory:',
                            echo=False,
@@ -16,19 +18,15 @@ def create_mem_db(metadata, db):
                            poolclass=StaticPool)
     metadata.create_all(engine)
 
-    # Store original engine-providing mechanism
-    original_engine = db.engine
-
     def _restore_engine(self):
-        # Re-bind the session to the original engine
         db.session.remove()
-        delattr(self, 'restore_engine')
-        delattr(self, '_test_engine')
+        del self.restore_engine
+        del self._test_engine
 
     db._test_engine = engine
     db.restore_engine = partial(_restore_engine, db)
 
-    # Override the session to use the in-memory engine
+    # Remove existing session and reconfigure to use the in-memory engine
     db.session.remove()
     db.session.configure(bind=engine)
 

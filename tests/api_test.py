@@ -14,8 +14,7 @@ from wodcraft.api.models import (
 
 try:
     from . import test_util
-except ValueError:
-    # Satisfy PyCharm. For some reason it doesn't like the relative import :-(
+except (ValueError, ImportError):
     import test_util
 
 
@@ -25,10 +24,11 @@ def get_result(response):
 
 class APITest(TestCase):
     def setUp(self):
-        """
-        """
-        # Create in-memory test metadata DB
+        """Set up in-memory test database and Flask test client."""
         self.app = create_app()
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+
         self.session = test_util.create_mem_db(metadata, self.app.db)
         self.test_app = self.app.test_client()
 
@@ -76,10 +76,10 @@ class APITest(TestCase):
         self.session.commit()
 
     def tearDown(self):
-        """
-        """
+        """Clean up test state."""
         self.app.db.restore_engine()
         self.test_app = None
+        self.ctx.pop()
 
     def test_get_activities_empty(self):
         # Start with a fresh memory db
@@ -140,10 +140,10 @@ class APITest(TestCase):
         self.assertEqual(ROLE_USER, result['role'])
 
         # Try to get the same user
-        id = result['id']
+        user_id = result['id']
 
         q = self.session.query
-        user = q(User).get(id)
+        user = self.session.get(User, user_id)
 
         self.assertEqual(post_data['name'], user.name)
         self.assertEqual(post_data['email'], user.email)
@@ -174,8 +174,6 @@ class APITest(TestCase):
         return get_result(response)
 
     def test_add_score(self):
-        """
-        """
         when = datetime.now().date()
         self._add_score(when=when, reps=5)
 
@@ -238,7 +236,7 @@ class APITest(TestCase):
         self.assertEqual(1, len(score.tags))
         self.assertEqual('tag_0', score.tags[0].tag)
 
-        self.assertNotEquals(666, score.reps)
+        self.assertNotEqual(666, score.reps)
         post_data = dict(tags='tag_1')
         url = '/api/v1.0/scores/{}'.format(score.id)
         response = self.test_app.put(url, data=post_data)
